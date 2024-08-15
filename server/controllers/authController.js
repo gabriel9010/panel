@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
                 if (err) throw err;
                 // Invia il token e reindirizza alla dashboard
                 res.json({ token });
-                res.redirect('/dashboard.html');  // Aggiungi questo per il reindirizzamento
+                res.redirect('/public/home.html');  // Aggiungi questo per il reindirizzamento
             }
         );
     } catch (err) {
