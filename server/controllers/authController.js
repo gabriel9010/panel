@@ -11,34 +11,17 @@ exports.register = async (req, res) => {
     }
 
     try {
-        // Verifica se l'utente esiste già tramite username o email
         let user = await User.findOne({ $or: [{ username }, { email }] });
         
         if (user) {
             return res.status(400).json({ msg: 'User with this username or email already exists' });
         }
         
-        // Crea un nuovo utente
         user = new User({ username, email, password });
         await user.save();
-        
-        // Crea il payload per il token JWT
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-        
-        // Firma il token e invia la risposta
-        jwt.sign(
-            payload, 
-            process.env.JWT_SECRET, 
-            { expiresIn: '1h' }, 
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
+
+        // Reindirizza alla pagina di login
+        res.status(201).redirect('/login.html');
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -49,41 +32,38 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     const { username, password } = req.body;
 
-    // Validazione dei campi
     if (!username || !password) {
         return res.status(400).json({ msg: 'Please enter all fields' });
     }
     
     try {
-        // Verifica se l'utente esiste tramite username
         let user = await User.findOne({ username });
         
         if (!user) {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
         
-        // Verifica la password
         const isMatch = await user.matchPassword(password);
         
         if (!isMatch) {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
         
-        // Crea il payload per il token JWT
         const payload = {
             user: {
                 id: user.id
             }
         };
-        
-        // Firma il token e invia la risposta
+
         jwt.sign(
             payload, 
             process.env.JWT_SECRET, 
             { expiresIn: '1h' }, 
             (err, token) => {
                 if (err) throw err;
+                // Invia il token e reindirizza alla dashboard
                 res.json({ token });
+                res.redirect('/dashboard.html');  // Aggiungi questo per il reindirizzamento
             }
         );
     } catch (err) {

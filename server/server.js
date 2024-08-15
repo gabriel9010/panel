@@ -12,6 +12,14 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+// Servire i file statici dalla directory 'public'
+app.use(express.static('public'));
+
+// Rotta per la pagina home
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/home.html');
+});
+
 // Define Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 
