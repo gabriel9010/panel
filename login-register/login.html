@@ -75,15 +75,43 @@
     </div>
 
     <script>
-        function login() {
+        async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username && password) {
-                alert('Login effettuato con successo!');
-                // Puoi aggiungere il redirect alla dashboard o altra logica qui
-            } else {
+            if (!username || !password) {
                 alert('Per favore, inserisci username e password.');
+                return;
+            }
+
+            try {
+                // Invia richiesta al backend
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                // Controlla la risposta dal backend
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Salva il token nel localStorage
+                    localStorage.setItem('token', data.token);
+
+                    alert('Login effettuato con successo!');
+                    window.location.href = '/home.ejs'; // Redirect alla dashboard o altra pagina
+                } else {
+                    // Gestione errori specifici
+                    const errorData = await response.json();
+                    alert('Errore: ' + errorData.message);
+                }
+            } catch (error) {
+                // Log dell'errore nella console
+                console.error('Errore:', error);
+                alert('Si è verificato un errore durante il login.');
             }
         }
     </script>

@@ -69,23 +69,47 @@
     <div class="register-container">
         <h2>Registrati</h2>
         <input type="text" id="reg-username" placeholder="Username" required>
+        <input type="email" id="reg-email" placeholder="Email" required>
         <input type="password" id="reg-password" placeholder="Password" required>
         <input type="password" id="reg-confirm-password" placeholder="Conferma Password" required>
-        <button onclick="register()"><a href="">Registrati</a></button>
+        <button onclick="register()">Registrati</button>
         <a href="login.html" class="login-link">Hai già un account? Accedi</a>
     </div>
 
     <script>
-        function register() {
+        async function register() {
             const username = document.getElementById('reg-username').value;
+            const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const confirmPassword = document.getElementById('reg-confirm-password').value;
 
-            if (password === confirmPassword) {
-                alert('Registrazione avvenuta con successo!');
-                // Puoi aggiungere il redirect alla pagina di login o altra logica qui
-            } else {
+            // Controllo delle password lato frontend
+            if (password !== confirmPassword) {
                 alert('Le password non coincidono.');
+                return;
+            }
+
+            // Invia richiesta al backend
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Registrazione avvenuta con successo!');
+                    window.location.href = 'login.html'; // Redirect alla pagina di login
+                } else {
+                    alert('Errore: ' + data.message); // Mostra l'errore dal backend
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                alert('Si è verificato un errore durante la registrazione.');
             }
         }
     </script>
