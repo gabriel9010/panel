@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Armamento</title>
     <style>
         body {
             margin: 0;
@@ -27,33 +27,6 @@
             left: 0;
             z-index: 1001;
             height: 40px;
-        }
-
-        .top-bar .login-btn {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 5px 10px;
-            background-color: #2468F2;
-            border: none;
-            border-radius: 3px;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-            text-transform: uppercase;
-            margin-right: 30px;
-        }
-
-        .top-bar .login-btn a,
-        .login-btn_ a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .top-bar .login-btn a:hover,
-        .login-btn_ a:hover {
-            color: white;
         }
 
         .sidebar {
@@ -107,20 +80,6 @@
             transform: rotate(-45deg) translate(5px, -5px);
         }
 
-        .user-profile {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .user-profile img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-        }
-
         nav ul {
             list-style-type: none;
             padding: 0;
@@ -150,9 +109,8 @@
             transform: scale(0.98);
         }
 
-        /* Stile per il pulsante attivo che deve diventare blu */
         nav ul li.active {
-            background-color: #2468F2;
+            background-color: #1070AB;
         }
 
         nav ul li a {
@@ -186,6 +144,20 @@
             width: 100%;
             max-width: 1200px;
             margin-top: 130px;
+        }
+
+        .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-profile img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 10px;
         }
 
         .box {
@@ -254,26 +226,6 @@
             transition: background-color 0.3s ease, transform 0.1s ease;
         }
 
-        /* Stile specifico per i link all'interno dei pulsanti */
-        .box button a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .login-btn_{
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 5px 10px;
-            background-color: #2468F2;
-            border: none;
-            border-radius: 3px;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-
         .box button:hover {
             background-color: #1a4e99;
         }
@@ -287,6 +239,10 @@
                 transform: translateX(-100%);
             }
 
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+
             .content {
                 margin-left: 0;
             }
@@ -295,14 +251,10 @@
                 display: block;
             }
 
-            .top-bar {
-                display: block;
-            }
-
             .dashboard {
                 grid-template-columns: 1fr;
                 grid-gap: 20px;
-                margin-top: 290px;
+                margin-top: 130px;
             }
 
             .box {
@@ -341,7 +293,7 @@
 </head>
 <body>
     <div class="top-bar">
-        <button class="login-btn"><a href="/login-register/login.html">Accedi</a></button>
+        <button class="login-btn">Accedi</button>
     </div>
 
     <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
@@ -353,7 +305,6 @@
     <div class="sidebar" id="sidebar">
         <div class="user-profile">
             <img src="/img/logo.png" alt="User Icon">
-            <button class="login-btn_"><a href="/login-register/login.html">Accedi</a></button>
         </div>
         <nav>
             <ul>
@@ -369,75 +320,53 @@
     <div class="content">
         <div class="dashboard">
             <div class="box">
-                <h2>BILANCIO TOTALE:</h2>
-                <span class="value">0€</span>
-                <button><a href="/pages/contabilita.html">MOVIMENTI</a></button>
+                <h2>Coltelli</h2>
+                <div class="value" id="coltelli-value">0</div>
+                <div>
+                    <button onclick="increment('coltelli')">+</button>
+                    <button onclick="decrement('coltelli')">-</button>
+                </div>
             </div>
             <div class="box">
-                <h2>ARMAMENTO IN USCITA:</h2>
-                <ul>
-                    <li>COLTELLO: 0</li>
-                    <li>PISTOLE: 0</li>
-                    <li>PASSA: 0</li>
-                </ul>
-                <button><a href="/pages/armamento.html">VISUALIZZA</a></button>
+                <h2>Pistole</h2>
+                <div class="value" id="pistole-value">0</div>
+                <div>
+                    <button onclick="increment('pistole')">+</button>
+                    <button onclick="decrement('pistole')">-</button>
+                </div>
             </div>
             <div class="box">
-                <h2>CANDIDATURE NON LETTE</h2>
-                <span class="value">0</span>
-                <button><a href="/pages/candidature.html">VISUALIZZA</a></button>
-            </div>
-            <div class="box">
-                <h2>CANDIDATURE LETTE</h2>
-                <span class="value">0</span>
-                <button><a href="/pages/membri.html">VISUALIZZA</a></button>
+                <h2>Passamontagna</h2>
+                <div class="value" id="passamontagna-value">0</div>
+                <div>
+                    <button onclick="increment('passamontagna')">+</button>
+                    <button onclick="decrement('passamontagna')">-</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        function increment(item) {
+            let element = document.getElementById(item + '-value');
+            let value = parseInt(element.textContent);
+            element.textContent = value + 1;
+        }
+
+        function decrement(item) {
+            let element = document.getElementById(item + '-value');
+            let value = parseInt(element.textContent);
+            if (value > 0) {
+                element.textContent = value - 1;
+            }
+        }
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const toggleButton = document.getElementById('sidebarToggle');
             const isVisible = sidebar.classList.toggle('visible');
             toggleButton.classList.toggle('active', isVisible);
         }
-
-        window.addEventListener('resize', function() {
-            const sidebar = document.getElementById('sidebar');
-            const toggleButton = document.getElementById('sidebarToggle');
-            if (window.innerWidth > 768) {
-                sidebar.classList.add('visible');
-                toggleButton.classList.remove('active');
-            } else {
-                sidebar.classList.remove('visible');
-                toggleButton.classList.remove('active');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const toggleButton = document.getElementById('sidebarToggle');
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('visible');
-                toggleButton.classList.remove('active');
-            } else {
-                sidebar.classList.add('visible');
-                toggleButton.classList.remove('active');
-            }
-
-            // Gestione dello stato attivo basato sulla pagina corrente
-            const currentPath = window.location.pathname.split('/').pop();
-            const menuItems = document.querySelectorAll('nav ul li a');
-
-            menuItems.forEach(item => {
-                if (item.getAttribute('href') === currentPath) {
-                    item.parentElement.classList.add('active');
-                } else {
-                    item.parentElement.classList.remove('active');
-                }
-            });
-        });
     </script>
 </body>
 </html>
