@@ -19,10 +19,11 @@
 
         .register-container {
             background-color: #2c3243;
-            padding: 20px 40px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 300px;
+            width: 90%;
+            max-width: 400px;
             text-align: center;
         }
 
@@ -31,7 +32,7 @@
         }
 
         .register-container input {
-            width: 100%;
+            width: 94%;
             padding: 10px;
             margin-bottom: 15px;
             border: none;
@@ -63,6 +64,13 @@
         .register-container .login-link:hover {
             text-decoration: underline;
         }
+
+        @media (min-width: 768px) {
+            .register-container {
+                padding: 40px;
+                width: 350px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -83,13 +91,11 @@
             const password = document.getElementById('reg-password').value;
             const confirmPassword = document.getElementById('reg-confirm-password').value;
 
-            // Controllo delle password lato frontend
             if (password !== confirmPassword) {
                 alert('Le password non coincidono.');
                 return;
             }
 
-            // Invia richiesta al backend
             try {
                 const response = await fetch('http://localhost:5000/api/auth/register', {
                     method: 'POST',
@@ -103,9 +109,9 @@
 
                 if (response.ok) {
                     alert('Registrazione avvenuta con successo!');
-                    window.location.href = 'login.html'; // Redirect alla pagina di login
+                    window.location.href = 'login.html';
                 } else {
-                    alert('Errore: ' + data.message); // Mostra l'errore dal backend
+                    alert('Errore: ' + data.message);
                 }
             } catch (error) {
                 console.error('Errore:', error);

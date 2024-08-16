@@ -396,7 +396,7 @@
         <div class="user-profile">
             <img src="/img/logo.png" alt="User Icon">
             <span id="user-name"></span>
-            <button id="sidebar-auth-button" class="login-btn_">Accedi</button>
+            <button id="sidebar-auth-button" class="login-btn_"><a href="login-register/login.html">Accedi</a></button>
         </div>
         <nav>
             <ul>
@@ -497,44 +497,51 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            checkAuth(); // Controlla se l'utente è autenticato all'avvio della pagina
+         // Funzione per il logout
+    function handleLogout() {
+        // Rimuovi il token e l'username dal localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        location.reload(); // Ricarica la pagina per ripristinare lo stato iniziale
+    }
 
-            const currentPath = window.location.pathname.split('/').pop();
-            const menuItems = document.querySelectorAll('nav ul li a');
+    document.addEventListener('DOMContentLoaded', function () {
+        checkAuth(); // Controlla se l'utente è autenticato all'avvio della pagina
 
-            menuItems.forEach(item => {
-                if (item.getAttribute('href') === currentPath) {
-                    item.parentElement.classList.add('active');
-                } else {
-                    item.parentElement.classList.remove('active');
-                }
-            });
+        const currentPath = window.location.pathname.split('/').pop();
+        const menuItems = document.querySelectorAll('nav ul li a');
+
+        menuItems.forEach(item => {
+            if (item.getAttribute('href') === currentPath) {
+                item.parentElement.classList.add('active');
+            } else {
+                item.parentElement.classList.remove('active');
+            }
         });
+    });
 
         function checkAuth() {
-            const token = localStorage.getItem('token');
-            const username = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+        const username = localStorage.getItem('username');
 
-            // Se token e username sono presenti nel localStorage, modifica l'interfaccia
-            if (token && username) {
-                // Modifica il pulsante in Logout
-                document.getElementById('auth-button').innerText = 'Logout';
-                document.getElementById('auth-button').onclick = handleLogout;
+        // Se token e username sono presenti nel localStorage, modifica l'interfaccia
+        if (token && username) {
+            // Modifica il pulsante in Logout
+            document.getElementById('auth-button').innerText = 'Logout';
+            document.getElementById('auth-button').onclick = handleLogout;
 
-                document.getElementById('sidebar-auth-button').innerText = 'Logout';
-                document.getElementById('sidebar-auth-button').onclick = handleLogout;
+            document.getElementById('sidebar-auth-button').innerText = 'Logout';
+            document.getElementById('sidebar-auth-button').onclick = handleLogout;
 
-                // Mostra il nome utente
-                document.getElementById('user-name').innerText = `Benvenuto, ${username}`;
-                document.getElementById('user-name').style.display = 'block'; // Mostra il nome utente
+            // Mostra il nome utente
+            document.getElementById('user-name').innerText = `Benvenuto, ${username}`;
+            document.getElementById('user-name').style.display = 'block'; // Mostra il nome utente
 
-                // Rimuove il link dal pulsante "Logout"
-                document.getElementById('auth-button').removeAttribute('href');
-                document.getElementById('sidebar-auth-button').removeAttribute('href');
-            }
+            // Rimuove il link dal pulsante "Logout"
+            document.getElementById('auth-button').removeAttribute('href');
+            document.getElementById('sidebar-auth-button').removeAttribute('href');
         }
-
+    }
         function handleLogout() {
             // Rimuovi il token e il nome utente dal localStorage
             localStorage.removeItem('token');

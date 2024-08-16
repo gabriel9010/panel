@@ -19,10 +19,11 @@
 
         .login-container {
             background-color: #2c3243;
-            padding: 20px 40px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 300px;
+            width: 90%;
+            max-width: 400px;
             text-align: center;
         }
 
@@ -31,7 +32,7 @@
         }
 
         .login-container input {
-            width: 100%;
+            width: 94%;
             padding: 10px;
             margin-bottom: 15px;
             border: none;
@@ -63,6 +64,13 @@
         .login-container .register-link:hover {
             text-decoration: underline;
         }
+
+        @media (min-width: 768px) {
+            .login-container {
+                padding: 40px;
+                width: 350px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -85,7 +93,6 @@
             }
 
             try {
-                // Invia richiesta al backend
                 const response = await fetch('http://localhost:5000/api/auth/login', {
                     method: 'POST',
                     headers: {
@@ -94,22 +101,16 @@
                     body: JSON.stringify({ username, password })
                 });
 
-                // Controlla la risposta dal backend
                 if (response.ok) {
                     const data = await response.json();
-
-                    // Salva il token nel localStorage
                     localStorage.setItem('token', data.token);
-
                     alert('Login effettuato con successo!');
-                    window.location.href = '/home.ejs'; // Redirect alla dashboard o altra pagina
+                    window.location.href = '/home.html';
                 } else {
-                    // Gestione errori specifici
                     const errorData = await response.json();
                     alert('Errore: ' + errorData.message);
                 }
             } catch (error) {
-                // Log dell'errore nella console
                 console.error('Errore:', error);
                 alert('Si è verificato un errore durante il login.');
             }
