@@ -1,0 +1,20 @@
+# Step 1: Usa un'immagine di base di Node.js
+FROM node:14
+
+# Step 2: Imposta la directory di lavoro nel container
+WORKDIR /app
+
+# Step 3: Copia il file package.json e package-lock.json nel container
+COPY package*.json ./
+
+# Step 4: Installa le dipendenze
+RUN npm install
+
+# Step 5: Copia il resto dei file dell'applicazione nel container
+COPY . .
+
+# Step 6: Espone la porta su cui l'applicazione sarà in ascolto
+EXPOSE 5000
+
+# Step 7: Usa il file .env (se richiesto) e avvia l'applicazione
+CMD ["node", "server.js"]
