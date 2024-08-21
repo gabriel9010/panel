@@ -6,13 +6,10 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const candidatureRoutes = require('./routes/candidatureRoutes');
-const { protect } = require('./middleware/authMiddleware'); // Middleware di protezione
-const whitelistMiddleware = require('./middleware/whitelistMiddleware'); // Middleware per la whitelist degli IP
+const { protect } = require('./middleware/authMiddleware');
+const whitelistMiddleware = require('./middleware/whitelistMiddleware');
 
-// Carica le variabili d'ambiente
 dotenv.config();
-
-// Connessione al database
 connectDB();
 
 const app = express();
@@ -21,16 +18,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configura il motore di visualizzazione come EJS (se necessario per altre pagine)
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-// Configurazione della cartella statica per servire file HTML, CSS, JS, ecc.
+// Configurazione della cartella statica
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rotta per servire la pagina home.html alla root "/"
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'home.html')); // Servire home.html
+app.get('/', (req, res, next) => {
+  const homePath = path.join(__dirname, 'public', 'home.html');
+  res.sendFile(homePath, (err) => {
+    if (err) {
+      console.error("Errore nel servire home.html:", err);
+      next(err); // Passa l'errore al middleware di gestione degli errori
+    }
+  });
 });
 
 // Rotte di autenticazione
@@ -44,12 +43,12 @@ app.get('/api/protected', whitelistMiddleware, protect, (req, res) => {
   res.status(200).json({ message: 'Benvenuto nella rotta protetta!' });
 });
 
-// Middleware di gestione errori
+// Middleware di gestione degli errori
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("Errore nel middleware:", err.stack);
   res.status(500).json({
     message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : {}
+    error: process.env.NODE_ENV === 'development' ? err : {}
   });
 });
 
