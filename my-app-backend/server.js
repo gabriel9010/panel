@@ -44,19 +44,9 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Configurazione per HTTP in Sviluppo e HTTPS in Produzione
-if (process.env.NODE_ENV === 'production') {
-  const privateKey = fs.readFileSync('path/to/private-key.pem', 'utf8');
-  const certificate = fs.readFileSync('path/to/certificate.pem', 'utf8');
-  const credentials = { key: privateKey, cert: certificate };
 
-  const httpsServer = https.createServer(credentials, app);
-  httpsServer.listen(PORT, () => {
-    console.log(`HTTPS Server running on port ${PORT}`);
-  });
-} else {
-  const httpServer = http.createServer(app);
-  httpServer.listen(PORT, () => {
-    console.log(`HTTP Server running on port ${PORT}`);
-  });
-}
+// Configurazione per il server HTTP
+const httpServer = http.createServer(app);
+httpServer.listen(PORT, () => {
+  console.log(`HTTP Server running on port ${PORT}`);
+});
