@@ -1,4 +1,6 @@
+const https = require('https');
 const http = require('http');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -9,24 +11,12 @@ const candidatureRoutes = require('./routes/candidatureRoutes');
 const { protect } = require('./middleware/authMiddleware'); // Middleware di protezione
 const whitelistMiddleware = require('./middleware/whitelistMiddleware'); // Middleware per la whitelist degli IP
 
-// Carica le variabili d'ambiente
 dotenv.config();
-
-// Connessione al database
 connectDB();
 
 const app = express();
-
-// Middleware per gestire JSON e CORS
-app.use(express.json()); // Parsing del corpo delle richieste JSON
-
-// Configurazione CORS
-const corsOptions = {
-  origin: 'https://eccari.chrifnite.it', // Dominio consentito
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'], // Metodi HTTP consentiti
-  credentials: true, // Consente l'invio di cookie o credenziali
-};
-app.use(cors(corsOptions)); // Applica CORS a tutte le rotte
+app.use(cors());
+app.use(express.json());
 
 // Configura il motore di visualizzazione come EJS
 app.set('view engine', 'ejs');
@@ -43,7 +33,7 @@ app.get('/api/protected', whitelistMiddleware, protect, (req, res) => {
   res.status(200).json({ message: 'Benvenuto nella rotta protetta!' });
 });
 
-// Middleware di gestione degli errori
+// Middleware di gestione errori
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -52,13 +42,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Imposta la porta per il server HTTP
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 5000;
 
-// Configurazione del server HTTP
+
+// Configurazione per il server HTTP
 const httpServer = http.createServer(app);
-
-// Avvia il server HTTP
-httpServer.listen(PORT, '0.0.0.0', () => {
+httpServer.listen(PORT, () => {
   console.log(`HTTP Server running on port ${PORT}`);
 });

@@ -384,7 +384,7 @@
                     button.addEventListener('click', async () => {
                         const candidatureId = button.getAttribute('data-id');
                         try {
-                            const acceptResponse = await fetch(`http://192.168.1.104/api/candidature/${candidatureId}/accept`, {
+                            const acceptResponse = await fetch(`http://localhost:5000/api/candidature/${candidatureId}/accept`, {
                                 method: 'PUT'
                             });
                             const updatedCandidature = await acceptResponse.json();
@@ -403,7 +403,7 @@
                         const confirmed = confirm("Sei sicuro di voler eliminare questa candidatura?");
                         if (confirmed) {
                             try {
-                                const deleteResponse = await fetch(`http://192.168.1.104/api/candidature/${candidatureId}`, {
+                                const deleteResponse = await fetch(`http:/localhost:5000/api/candidature/${candidatureId}`, {
                                     method: 'DELETE'
                                 });
                                 if (deleteResponse.ok) {
