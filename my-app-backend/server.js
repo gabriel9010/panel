@@ -23,19 +23,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Rotta per servire la pagina home.html alla root "/"
 app.get('/', (req, res, next) => {
-  const homePath = path.join(__dirname, 'public', 'home.html');
-  res.sendFile(homePath, (err) => {
+  res.sendFile(path.join(__dirname, 'public', 'home.html'), (err) => {
     if (err) {
-      console.error("Errore nel servire home.html:", err);
-      next(err); // Passa l'errore al middleware di gestione degli errori
+      next(err);
     }
   });
 });
 
-// Rotte di autenticazione
+// Prefisso per tutte le API
 app.use('/api/auth', authRoutes);
-
-// Rotte per le candidature con whitelist degli IP
 app.use('/api/candidature', whitelistMiddleware, candidatureRoutes);
 
 // Rotta protetta d'esempio con whitelist degli IP
