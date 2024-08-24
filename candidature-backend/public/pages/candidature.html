@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidature</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1d1f30;
+            color: white;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            display: none;
+            width: 100%;
+            background-color: #181A29;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+            height: 40px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #181A29;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.visible {
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background-color: #3b4056;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .sidebar-toggle .bar {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 4px 0;
+            transition: 0.4s;
+        }
+
+        .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #user-name {
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-profile img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        nav ul li {
+            cursor: pointer;
+            background-color: #1D1F30;
+            margin-bottom: 10px;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 16px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        nav ul li:hover {
+            background-color: #3a3f55;
+        }
+
+        nav ul li.active {
+            background-color: #1070AB;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 15px;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            margin-left: 270px;
+            margin-right: 20px;
+            background-color: #1d1f30;
+            overflow-y: auto;
+            transition: margin-left 0.3s ease;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .header input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #2468F2;
+            width: 250px;
+            background-color: #181A29;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* Grid styling for 4 cards per row */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #252940;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #FFF;
+        }
+
+        .card-content {
+            font-size: 14px;
+            color: #c7c7c7;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .card-content p {
+            margin-bottom: 10px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-footer button {
+            flex: 1;
+            background-color: #28a745;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+        }
+
+        .card-footer button.details {
+            background-color: #6c757d;
+        }
+
+        .card-footer button.delete {
+            background-color: #dc3545;
+        }
+
+        .card-footer button:hover {
+            background-color: #218838;
+        }
+
+        .card-footer button.delete:hover {
+            background-color: #c82333;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                margin-left: 20px;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Barra superiore visibile solo in modalità responsive -->
+    <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="user-profile">
+            <img src="/candidature-backend/public/img/logo.png" alt="User Icon">
+            <span id="user-name">Benvenuto, Admin</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/candidature-backend/public/index.html">HOME</a></li>
+                <li><a href="/candidature-backend/public/pages/candidature.html">CANDIDATURE</a></li>
+                <li><a href="/candidature-backend/public/pages/membri.html">MEMBRI</a></li>
+                <li><a href="/candidature-backend/public/pages/contabilita.html">CONTABILITA</a></li>
+                <li><a href="/candidature-backend/public/pages/armamento.html">ARMAMENTO</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <h1>Candidature</h1>
+            <input type="text" placeholder="Cerca candidato...">
+        </div>
+
+        <div class="grid-container">
+            <!-- Rows of Candidate Cards will be dynamically added here -->
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.getElementById('sidebarToggle');
+            const isVisible = sidebar.classList.toggle('visible');
+            toggleButton.classList.toggle('active', isVisible);
+        }
+
+        window.addEventListener('resize', function () {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.getElementById('sidebarToggle');
+            if (window.innerWidth > 768) {
+                sidebar.classList.add('visible');
+                toggleButton.classList.remove('active');
+            } else {
+                sidebar.classList.remove('visible');
+                toggleButton.classList.remove('active');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/candidature');
+                const candidatures = await response.json();
+
+                const gridContainer = document.querySelector('.grid-container');
+
+                candidatures.forEach((candidature) => {
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+
+                    card.innerHTML = `
+                        <div class="card-header">${candidature.username}</div>
+                        <div class="card-content">
+                            <p><strong>Status:</strong> ${candidature.status}</p>
+                            <p><strong>Risposte:</strong> ${candidature.answers.join(', ')}</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="details">Dettagli</button>
+                            <button class="accept" data-id="${candidature._id}">Accetta</button>
+                            <button class="delete" data-id="${candidature._id}">Elimina</button>
+                        </div>
+                    `;
+
+                    gridContainer.appendChild(card);
+                });
+
+                document.querySelectorAll('.accept').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const candidatureId = button.getAttribute('data-id');
+                        try {
+                            const acceptResponse = await fetch(`http://localhost:3000/api/candidature/${candidatureId}/accept`, {
+                                method: 'PUT'
+                            });
+                            const updatedCandidature = await acceptResponse.json();
+                            button.innerText = 'Accettata';
+                            button.disabled = true;
+                            alert(`Candidatura accettata: ${updatedCandidature.username}`);
+                        } catch (error) {
+                            console.error('Errore durante l\'accettazione della candidatura:', error);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.delete').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const candidatureId = button.getAttribute('data-id');
+                        const confirmed = confirm("Sei sicuro di voler eliminare questa candidatura?");
+                        if (confirmed) {
+                            try {
+                                const deleteResponse = await fetch(`http:/localhost:3000/api/candidature/${candidatureId}`, {
+                                    method: 'DELETE'
+                                });
+                                if (deleteResponse.ok) {
+                                    alert('Candidatura eliminata con successo');
+                                    button.closest('.card').remove();
+                                } else {
+                                    alert('Errore durante l\'eliminazione della candidatura');
+                                }
+                            } catch (error) {
+                                console.error('Errore durante l\'eliminazione della candidatura:', error);
+                            }
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Errore durante il recupero delle candidature:', error);
+            }
+        });
+    </script>
+</body>
+</html>
