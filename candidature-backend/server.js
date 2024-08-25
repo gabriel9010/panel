@@ -3,8 +3,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
+const http = require('http');
+const socketIo = require('socket.io');
 const TelegramBot = require('node-telegram-bot-api');
+const ipRangeCheck = require("ip-range-check");
+
 const app = express();
+const server = http.createServer(app); // Crea un server HTTP
+const io = socketIo(server); // Inizializza Socket.io sul server
 const port = process.env.PORT || 3000;
 
 // Configura il bot Telegram
@@ -17,18 +23,17 @@ const whitelist = process.env.WHITELIST_IPS.split(',');
 app.use(express.json());
 app.use(cors());
 
-// Middleware per servire file statici e applicare la whitelist solo per il frontend
+// Middleware per verificare l'IP contro la whitelist
 app.use((req, res, next) => {
-  if (!req.path.startsWith('/api')) {
-    const clientIp = req.ip || req.connection.remoteAddress;
-    console.log(`Tentativo di accesso da IP: ${clientIp}`);
-    if (whitelist.includes(clientIp)) {
-      next();
-    } else {
-      res.status(403).send('Accesso negato: il tuo IP non è autorizzato.');
-    }
-  } else {
+  const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const ipToCheck = clientIp.includes("::ffff:") ? clientIp.split("::ffff:")[1] : clientIp;
+
+  console.log(`Tentativo di accesso da IP: ${ipToCheck}`);
+
+  if (whitelist.includes(ipToCheck) || ipRangeCheck(ipToCheck, whitelist)) {
     next();
+  } else {
+    res.status(403).send('Accesso negato: il tuo IP non è autorizzato.');
   }
 });
 
@@ -37,7 +42,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connesso a MongoDB'))
   .catch(err => {
     console.error('Errore di connessione a MongoDB...', err);
-    process.exit(1); // Termina il processo se non può connettersi a MongoDB
+    process.exit(1);
   });
 
 // Servire i file statici del frontend
@@ -53,6 +58,13 @@ const candidaturaSchema = new mongoose.Schema({
 
 const Candidatura = mongoose.model('Candidatura', candidaturaSchema);
 
+// Funzione per inviare aggiornamenti delle candidature a tutti i client
+const sendCandidatureCounts = async () => {
+  const unreadCount = await Candidatura.countDocuments({ status: 'In attesa' });
+  const readCount = await Candidatura.countDocuments({ status: 'Accettata' });
+  io.emit('candidatureCounts', { unread: unreadCount, read: readCount });
+};
+
 // Rotta per ottenere tutte le candidature (GET)
 app.get('/api/candidature', async (req, res) => {
   try {
@@ -67,9 +79,9 @@ app.get('/api/candidature', async (req, res) => {
 // Rotta per inviare una nuova candidatura (POST)
 app.post('/api/candidature', async (req, res) => {
   try {
-    console.log('Ricevuta candidatura:', req.body); // Logging per verificare i dati ricevuti
     const candidatura = new Candidatura(req.body);
     await candidatura.save();
+    sendCandidatureCounts();  // Aggiorna i client in tempo reale
     res.status(201).send('Candidatura inviata con successo');
   } catch (error) {
     console.error('Errore durante l\'invio della candidatura:', error);
@@ -86,10 +98,8 @@ app.put('/api/candidature/:id/accept', async (req, res) => {
       return res.status(404).send('Candidatura non trovata');
     }
 
-    // Invia messaggio su Telegram
-    const message = `🎉 Complimenti, ${candidatura.username}! La tua candidatura è stata accettata. Benvenuto nel team!`;
-    bot.sendMessage(candidatura.telegramId, message);
-
+    bot.sendMessage(candidatura.telegramId, `🎉 Complimenti, ${candidatura.username}! La tua candidatura è stata accettata. Benvenuto nel team!`);
+    sendCandidatureCounts();  // Aggiorna i client in tempo reale
     res.status(200).json(candidatura);
   } catch (error) {
     console.error('Errore durante l\'aggiornamento della candidatura:', error);
@@ -101,26 +111,11 @@ app.put('/api/candidature/:id/accept', async (req, res) => {
 app.delete('/api/candidature/:id', async (req, res) => {
   try {
     await Candidatura.findByIdAndDelete(req.params.id);
+    sendCandidatureCounts();  // Aggiorna i client in tempo reale
     res.status(200).send('Candidatura eliminata');
   } catch (error) {
     console.error('Errore durante l\'eliminazione della candidatura:', error);
     res.status(500).send('Errore durante l\'eliminazione della candidatura');
-  }
-});
-
-// Nuova rotta per contare candidature lette e non lette (GET)
-app.get('/api/candidature/count', async (req, res) => {
-  try {
-    const unreadCount = await Candidatura.countDocuments({ status: 'In attesa' });
-    const readCount = await Candidatura.countDocuments({ status: 'Accettata' });
-
-    res.status(200).json({
-      unread: unreadCount,
-      read: readCount
-    });
-  } catch (error) {
-    console.error('Errore durante il conteggio delle candidature:', error);
-    res.status(500).send('Errore durante il conteggio delle candidature');
   }
 });
 
@@ -130,6 +125,6 @@ app.get('*', (req, res) => {
 });
 
 // Avvio del server
-app.listen(port, () => {
-  console.log(`Server in esecuzione su http://localhost:${port}`);
+server.listen(port, '0.0.0.0', () => {
+  console.log(`Server in esecuzione su http://0.0.0.0:${port}`);
 });

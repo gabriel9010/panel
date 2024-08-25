@@ -382,15 +382,10 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
-    </div>
-    
+    <div class="top-bar"></div>
     <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
     </div>
-
     <div class="sidebar" id="sidebar">
         <div class="user-profile">
             <img src="/candidature-backend/public/img/logo.png" alt="User Icon">
@@ -436,7 +431,15 @@
         </div>
     </div>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        const socket = io();
+
+        // Ascolta gli aggiornamenti in tempo reale
+        socket.on('candidatureCounts', (data) => {
+            document.getElementById('unreadCount').textContent = data.unread || 0;
+            document.getElementById('readCount').textContent = data.read || 0;
+        });
         // Funzione per effettuare il login
         async function loginUser(username, password) {
             try {
