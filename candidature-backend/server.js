@@ -119,7 +119,13 @@ app.delete('/api/candidature/:id', async (req, res) => {
   }
 });
 
-// Catch-all per servire l'index.html per tutte le richieste non API (Single Page Applications)
+// Rotta per servire le pagine statiche in /pages
+app.get('/pages/*', (req, res) => {
+  const requestedPage = req.path.replace('/pages/', '');
+  res.sendFile(path.join(__dirname, 'public', 'pages', requestedPage));
+});
+
+// Rotta catch-all per reindirizzare all'index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

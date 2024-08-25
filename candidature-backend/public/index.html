@@ -388,16 +388,16 @@
     </div>
     <div class="sidebar" id="sidebar">
         <div class="user-profile">
-            <img src="/candidature-backend/public/img/logo.png" alt="User Icon">
+            <img src="/img/logo.png" alt="User Icon">
             <span id="user-name">Benvenuto, Admin</span> 
         </div>
         <nav>
             <ul>
-                <li><a href="/candidature-backend/public/index.html">HOME</a></li>
-                <li><a href="/candidature-backend/public/pages/candidature.html">CANDIDATURE</a></li>
-                <li><a href="/candidature-backend/public/pages/membri.html">MEMBRI</a></li>
-                <li><a href="/candidature-backend/public/pages/contabilita.html">CONTABILITA</a></li>
-                <li><a href="/candidature-backend/public/pages/armamento.html">ARMAMENTO</a></li>
+                <li><a href="/">HOME</a></li>
+                <li><a href="/pages/candidature.html">CANDIDATURE</a></li>
+                <li><a href="/pages/membri.html">MEMBRI</a></li>
+                <li><a href="/pages/contabilita.html">CONTABILITA</a></li>
+                <li><a href="/pages/armamento.html">ARMAMENTO</a></li>
             </ul>
         </nav>
     </div>
@@ -407,7 +407,7 @@
             <div class="box">
                 <h2>BILANCIO TOTALE:</h2>
                 <span class="value">0€</span>
-                <button><a href="/candidature-backend/public/pages/contabilita.html">MOVIMENTI</a></button>
+                <button><a href="/pages/contabilita.html">MOVIMENTI</a></button>
             </div>
             <div class="box">
                 <h2>ARMAMENTO IN USCITA:</h2>
@@ -416,17 +416,17 @@
                     <li>PISTOLE: 0</li>
                     <li>PASSA: 0</li>
                 </ul>
-                <button><a href="/candidature-backend/public/pages/armamento.html">VISUALIZZA</a></button>
+                <button><a href="/pages/armamento.html">VISUALIZZA</a></button>
             </div>
             <div class="box">
                 <h2>CANDIDATURE NON LETTE</h2>
                 <span class="value" id="unreadCount">0</span>
-                <button><a href="/candidature-backend/public/pages/candidature.html">VISUALIZZA</a></button>
+                <button><a href="/pages/candidature.html">VISUALIZZA</a></button>
             </div>
             <div class="box">
                 <h2>CANDIDATURE LETTE</h2>
                 <span class="value" id="readCount">0</span>
-                <button><a href="/candidature-backend/public/pages/membri.html">VISUALIZZA</a></button>
+                <button><a href="/pages/membri.html">VISUALIZZA</a></button>
             </div>
         </div>
     </div>
@@ -440,85 +440,25 @@
             document.getElementById('unreadCount').textContent = data.unread || 0;
             document.getElementById('readCount').textContent = data.read || 0;
         });
-        // Funzione per effettuare il login
-        async function loginUser(username, password) {
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password }),
-                });
-    
-                const data = await response.json();
-    
-                if (response.ok) {
-                    console.log("Login avvenuto con successo:", data);
-    
-                    // Salva il token e il nome utente nel localStorage
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('username', data.username);
-    
-                    // Dopo il login, chiama checkAuth per aggiornare l'interfaccia
-                    checkAuth();
-                } else {
-                    alert('Errore durante il login: ' + data.message);
-                }
-            } catch (error) {
-                console.error('Errore durante il login:', error);
-            }
-        }
-    
-        // Funzione per controllare se l'utente è autenticato
-        function checkAuth() {
-            const token = localStorage.getItem('token');
-            const username = localStorage.getItem('username');
-    
-            console.log('Verifica autenticazione:', token, username);
-    
-            // Se il token e lo username sono presenti, setta il bottone per il logout
-            if (token && username) {
-                document.getElementById('auth-button').innerText = 'Logout';
-                document.getElementById('auth-button').onclick = handleLogout;
-                document.getElementById('sidebar-auth-button').innerText = 'Logout';
-                document.getElementById('sidebar-auth-button').onclick = handleLogout;
-                document.getElementById('user-name').innerText = `Benvenuto, ${username}`;
-            } else {
-                // Imposta il link di login per quando non c'è autenticazione
-                document.getElementById('auth-button').innerHTML = '<a href="/login-register/login.html">Accedi</a>';
-                document.getElementById('sidebar-auth-button').innerHTML = '<a href="/login-register/login.html">Accedi</a>';
-            }
-        }
-    
+
         // Funzione per aggiornare i contatori delle candidature
         async function updateCandidatureCounts() {
             try {
-                // Effettua la richiesta al backend
-                const response = await fetch('http://localhost:3000/api/candidature/count');
+                const response = await fetch('/api/candidature/count');
                 const data = await response.json();
-    
-                // Log della risposta per il debug
-                console.log("Risposta dal server (conteggio candidature):", data);
-    
-                // Aggiorna i contatori delle candidature
+
                 document.getElementById('unreadCount').textContent = data.unread || 0;
                 document.getElementById('readCount').textContent = data.read || 0;
-    
             } catch (error) {
                 console.error('Errore durante il recupero del conteggio delle candidature:', error);
             }
         }
-    
-        // Funzione per gestire il logout
-        function handleLogout() {
-            // Rimuovi il token e l'username dal localStorage
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-            // Ricarica la pagina per aggiornare l'interfaccia
-            location.reload();
-        }
-    
+
+        // Quando il DOM è caricato, aggiorna i contatori delle candidature
+        document.addEventListener('DOMContentLoaded', function () {
+            updateCandidatureCounts();
+        });
+
         // Gestione del sidebar toggle
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -526,34 +466,6 @@
             const isVisible = sidebar.classList.toggle('visible');
             toggleButton.classList.toggle('active', isVisible);
         }
-    
-        // Quando il DOM è caricato, controlla se l'utente è autenticato e aggiorna i contatori
-        document.addEventListener('DOMContentLoaded', function () {
-            checkAuth();  // Verifica l'autenticazione
-            updateCandidatureCounts();  // Aggiorna i contatori delle candidature
-    
-            const sidebar = document.getElementById('sidebar');
-            const toggleButton = document.getElementById('sidebarToggle');
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('visible');
-                toggleButton.classList.remove('active');
-            } else {
-                sidebar.classList.add('visible');
-                toggleButton.classList.remove('active');
-            }
-    
-            // Evidenzia il menu attivo
-            const currentPath = window.location.pathname.split('/').pop();
-            const menuItems = document.querySelectorAll('nav ul li a');
-    
-            menuItems.forEach(item => {
-                if (item.getAttribute('href') === currentPath) {
-                    item.parentElement.classList.add('active');
-                } else {
-                    item.parentElement.classList.remove('active');
-                }
-            });
-        });
-    </script>    
+    </script>
 </body>
 </html>
